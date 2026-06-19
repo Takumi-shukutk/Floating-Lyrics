@@ -152,10 +152,21 @@ class SpotifyService {
       console.error('❌ 現在の曲取得エラー:');
       console.error('   ステータスコード:', error.response?.status);
       console.error('   エラーメッセージ:', error.response?.data?.error?.message || error.message);
+      console.error('   Spotify エラー詳細:', error.response?.data);
       console.error('   リクエスト URL:', error.config?.url);
       console.error('   ヘッダー:', {
         Authorization: error.config?.headers?.Authorization ? '(トークン設定済み)' : '(トークンなし)'
       });
+      
+      // 403 エラーの追加情報
+      if (error.response?.status === 403) {
+        console.error('\n📌 403 エラーについて:');
+        console.error('   • Spotify で曲を再生していますか？');
+        console.error('   • Spotify のアクティブなデバイスがありますか？');
+        console.error('   • アプリのスコープが正しいですか？');
+        console.error('   詳細: https://developer.spotify.com/documentation/web-api/reference/get-the-users-currently-playing-track');
+      }
+      
       return null;
     }
   }
