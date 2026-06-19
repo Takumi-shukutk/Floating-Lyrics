@@ -69,14 +69,9 @@ Linux / macOS:
 
 Sorry IDK.
 
-### 4.2 Spicetify に拡張を登録
+### 4.2動作確認
 
-- `spicetify apply` を実行すると、拡張が読み込まれます。
-- 必要に応じて `config.ini` の `Extensions` エントリにファイル名を追記してください。
-
-### 4.3 動作確認
-
-1. Electron アプリを起動 (`npm start`)
+1. start.batを実行
 2. Spotify を再生
 3. Floating Lyrics に曲名と歌詞が表示されるか確認
 
