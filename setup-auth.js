@@ -6,6 +6,7 @@
  */
 
 const http = require('http');
+const https = require('https');
 const url = require('url');
 const querystring = require('querystring');
 const axios = require('axios');
@@ -44,7 +45,10 @@ console.log('\n✅ ログイン後、ブラウザが localhost:8888 にリダイ
 console.log('⏳ 認可コードを待機中...\n');
 
 // ステップ2: リダイレクトURIでコードを受け取る
-const server = http.createServer(async (req, res) => {
+// HTTPS サーバーの場合は証明書が必要
+let server;
+
+const requestHandler = async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const query = parsedUrl.query;
 
@@ -157,11 +161,56 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(400);
     res.end('Invalid request');
   }
-});
+};
 
-server.listen(8888, () => {
+// HTTPS または HTTP サーバーを起動
+if (redirectUri.startsWith('https')) {
+  // HTTPS の場合は自己署名証明書を使用
+  const crypto = require('crypto');
+  
+  // 簡易的な自己署名証明書を生成（テスト用）
+  const { exec } = require('child_process');
+  const certDir = path.join(__dirname, '.certs');
+  
+  // 証明書が存在しなければ生成
+  if (!fs.existsSync(certDir)) {
+    fs.mkdirSync(certDir, { recursive: true });
+  }
+  
+  const keyPath = path.join(certDir, 'key.pem');
+  const certPath = path.join(certDir, 'cert.pem');
+  
+  if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+    console.log('🔐 HTTPS 用の自己署名証明書を生成しています...\n');
+    const cmd = `openssl req -x509 -newkey rsa:2048 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "/CN=localhost"`;
+    
+    try {
+      // 同期実行
+      require('child_process').execSync(cmd);
+      console.log('✅ 証明書を生成しました。\n');
+    } catch (e) {
+      console.warn('⚠️ 証明書の自動生成に失敗しました。手動で生成するか、HTTP に戻してください。\n');
+    }
+  }
+  
+  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+    const privateKey = fs.readFileSync(keyPath);
+    const certificate = fs.readFileSync(certPath);
+    const options = { key: privateKey, cert: certificate };
+    
+    server = https.createServer(options, requestHandler);
+    console.log('🌐 HTTPS リダイレクトサーバーが https://localhost:8888 で待機しています...');
+  } else {
+    console.error('❌ HTTPS 証明書が見つかりません。HTTP に変更してください。');
+    process.exit(1);
+  }
+} else {
+  // HTTP の場合
+  server = http.createServer(requestHandler);
   console.log('🌐 リダイレクトサーバーが http://localhost:8888 で待機しています...');
-});
+}
+
+server.listen(8888);
 
 // タイムアウト設定（10分）
 setTimeout(() => {
