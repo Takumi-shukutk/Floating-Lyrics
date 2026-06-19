@@ -5,6 +5,11 @@ const MetadataServer = require('../services/metadataServer');
 const LyricsService = require('../services/lyrics');
 const config = require('../utils/config');
 
+// GPUプロセスがクラッシュするケースへの対応
+app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-gpu-compositing');
+
 let mainWindow;
 let trackProvider;
 let metadataServer;
