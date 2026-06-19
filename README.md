@@ -88,7 +88,7 @@ class FloatingLyricsBridge {
 new FloatingLyricsBridge();
 ```
 
-⚠️ この方式では Spotify Premium は不要です。
+ ⚠️ これにより、Spotify Premium は不要になります。
 
 ## 5. 使い方
 
