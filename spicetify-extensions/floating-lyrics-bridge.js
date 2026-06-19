@@ -15,34 +15,78 @@ class FloatingLyricsBridge {
     clearInterval(this.interval);
   }
 
+  ttmlToText(ttml) {
+    if (!ttml || typeof ttml !== 'string') return '';
+    const text = ttml
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&quot;/gi, '"')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .trim();
+    return text;
+  }
+
+  extractLyrics(track) {
+    if (!track) return '';
+
+    if (typeof track.lyrics === 'string' && track.lyrics.trim()) {
+      return track.lyrics.trim();
+    }
+
+    if (track.lyrics && typeof track.lyrics === 'object') {
+      if (typeof track.lyrics.ttml === 'string' && track.lyrics.ttml.trim()) {
+        return this.ttmlToText(track.lyrics.ttml);
+      }
+      if (Array.isArray(track.lyrics.lines)) {
+        return track.lyrics.lines.map((line) => line.text || line).join('\n').trim();
+      }
+    }
+
+    if (typeof track.ttml === 'string' && track.ttml.trim()) {
+      return this.ttmlToText(track.ttml);
+    }
+
+    if (Array.isArray(track.lines)) {
+      return track.lines.map((line) => line.text || line).join('\n').trim();
+    }
+
+    return '';
+  }
+
   extractTrackInfo(track) {
     if (!track) return null;
 
     const rawTrack = track.metadata || track;
 
-    const name = rawTrack.name || rawTrack.title || rawTrack.trackName || '';
-    const artists = rawTrack.artists || rawTrack.artist || rawTrack.artists?.items || [];
+    const name = rawTrack.name || rawTrack.title || rawTrack.trackName || rawTrack.name?.text || '';
+    const artists = rawTrack.artists || rawTrack.artist || rawTrack.artists?.items || rawTrack.artists?.items?.items || [];
 
     const artistNames = Array.isArray(artists)
       ? artists.map((artist) => (artist?.name || artist?.title || String(artist))).filter(Boolean)
-      : String(artists).
-          split(',')
+      : String(artists)
+          .split(',')
           .map((name) => name.trim())
           .filter(Boolean);
 
     const artist = Array.isArray(artistNames) ? artistNames.join(', ') : artistNames;
+
+    const lyrics = this.extractLyrics(rawTrack);
 
     return {
       name: String(name || '').trim(),
       artist: String(artist || '').trim(),
       duration: Number(rawTrack.duration || rawTrack.length || rawTrack.duration_ms || 0),
       id: rawTrack.uri || rawTrack.id || null,
+      lyrics: lyrics || null,
     };
   }
 
   sendTrackInfo() {
     try {
-      const track = Spicetify.Player.data.track || Spicetify.Player.data.track?.metadata;
+      const track = Spicetify.Player.data?.track || Spicetify.Player.data?.currentTrack || Spicetify.Player.data?.track?.metadata;
       const info = this.extractTrackInfo(track);
       if (!info || !info.name || !info.artist) return;
 

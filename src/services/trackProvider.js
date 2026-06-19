@@ -19,6 +19,7 @@ class TrackProvider {
       duration: Number(track.duration || 0),
       isPlaying: Boolean(track.isPlaying),
       id: track.id || null,
+      lyrics: typeof track.lyrics === 'string' && track.lyrics.trim() ? String(track.lyrics).trim() : null,
     };
 
     const changed =
