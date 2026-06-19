@@ -28,8 +28,11 @@ class SpotifyService {
         this.refreshToken = cached.refreshToken;
         this.tokenExpiry = cached.tokenExpiry;
 
+        console.log('✅ キャッシュからトークンを読み込みました');
+
         // トークンが有効期限切れの場合は更新
         if (Date.now() >= this.tokenExpiry) {
+          console.log('⏰ キャッシュのトークンが有効期限切れです');
           await this.refreshAccessToken();
         }
 
@@ -37,11 +40,12 @@ class SpotifyService {
       }
 
       // キャッシュなし: 認証情報が必要
-      console.warn('Spotify認証情報が見つかりません。');
-      console.warn('.envファイルに SPOTIFY_CLIENT_ID と SPOTIFY_CLIENT_SECRET を設定してください。');
+      console.error('❌ Spotify認証情報が見つかりません。');
+      console.error('   .spotify-cache ファイルが存在しません。');
+      console.error('   以下を実行してください: npm run setup-auth');
       return false;
     } catch (error) {
-      console.error('認証エラー:', error);
+      console.error('❌ 認証エラー:', error.message);
       return false;
     }
   }
@@ -51,6 +55,7 @@ class SpotifyService {
    */
   async refreshAccessToken() {
     try {
+      console.log('🔑 トークンを更新中...');
       const response = await axios.post(
         'https://accounts.spotify.com/api/token',
         null,
@@ -73,9 +78,12 @@ class SpotifyService {
       }
 
       this.saveTokenCache();
+      console.log('✅ トークンを更新しました');
       return true;
     } catch (error) {
-      console.error('トークン更新エラー:', error);
+      console.error('❌ トークン更新エラー:');
+      console.error('   ステータスコード:', error.response?.status);
+      console.error('   エラーメッセージ:', error.response?.data?.error || error.message);
       return false;
     }
   }
@@ -108,10 +116,14 @@ class SpotifyService {
    */
   async getCurrentTrack() {
     try {
-      if (!this.accessToken) return null;
+      if (!this.accessToken) {
+        console.error('❌ アクセストークンが設定されていません');
+        return null;
+      }
 
       // トークン有効期限チェック
       if (Date.now() >= this.tokenExpiry) {
+        console.log('🔄 トークンの有効期限切れ。更新中...');
         await this.refreshAccessToken();
       }
 
@@ -123,6 +135,7 @@ class SpotifyService {
       });
 
       if (!response.data || !response.data.item) {
+        console.warn('⚠️ 現在再生中の曲がありません');
         return null;
       }
 
@@ -136,7 +149,13 @@ class SpotifyService {
         id: item.id,
       };
     } catch (error) {
-      console.error('現在の曲取得エラー:', error.message);
+      console.error('❌ 現在の曲取得エラー:');
+      console.error('   ステータスコード:', error.response?.status);
+      console.error('   エラーメッセージ:', error.response?.data?.error?.message || error.message);
+      console.error('   リクエスト URL:', error.config?.url);
+      console.error('   ヘッダー:', {
+        Authorization: error.config?.headers?.Authorization ? '(トークン設定済み)' : '(トークンなし)'
+      });
       return null;
     }
   }
