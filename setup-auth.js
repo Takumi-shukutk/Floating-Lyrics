@@ -180,6 +180,7 @@ if (redirectUri.startsWith('https')) {
       const pems = selfsigned.generate([{ name: 'commonName', value: 'localhost' }], {
         days: 365,
         algorithm: 'sha256',
+        keySize: 4096,
         extensions: [{
           name: 'subjectAltName',
           altNames: [
