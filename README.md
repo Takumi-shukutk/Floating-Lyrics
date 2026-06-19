@@ -48,7 +48,7 @@ npm install
 
 #### 3.3 Redirect URIの設定
 1. アプリ設定ページの「Edit Settings」をクリック
-2. **Redirect URIs** セクションで `http://localhost:8888/callback` を追加
+2. **Redirect URIs** セクションで `http://127.0.0.1:8888/callback` を追加
 3. **Save** をクリック
 
 ### 4. 環境変数の設定
@@ -64,7 +64,7 @@ cp .env.example .env
 ```env
 SPOTIFY_CLIENT_ID=your_actual_client_id_here
 SPOTIFY_CLIENT_SECRET=your_actual_client_secret_here
-SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8888/callback
 ```
 
 ⚠️ **重要**: `.env` ファイルは `.gitignore` に含まれています。**絶対に git にコミットしないでください。**

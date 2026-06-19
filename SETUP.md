@@ -79,7 +79,7 @@ npm install
 2. **「Redirect URIs」** セクションを探す
 3. 以下を入力：
    ```
-   http://localhost:8888/callback
+   http://127.0.0.1:8888/callback
    ```
 4. **「Add」** をクリック
 5. **「Save」** をクリック
@@ -109,7 +109,7 @@ cp .env.example .env
 ```env
 SPOTIFY_CLIENT_ID=「3.3で取得した Client ID」
 SPOTIFY_CLIENT_SECRET=「3.3で取得した Client Secret」
-SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8888/callback
 ```
 
 例：
@@ -117,7 +117,7 @@ SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
 ```env
 SPOTIFY_CLIENT_ID=1a2b3c4d5e6f7g8h9i0j
 SPOTIFY_CLIENT_SECRET=abcdefghijklmnopqrstuvwxyz1234567890abc
-SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8888/callback
 ```
 
 ✅ **ファイルを保存してください。**

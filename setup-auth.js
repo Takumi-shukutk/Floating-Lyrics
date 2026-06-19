@@ -17,7 +17,7 @@ require('dotenv').config();
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirectUri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:8888/callback';
+const redirectUri = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:8888/callback';
 
 // スコープ
 const scopes = [
@@ -75,7 +75,7 @@ const requestHandler = async (req, res) => {
       const { access_token, refresh_token, expires_in } = response.data;
 
       // トークンをキャッシュに保存
-      const cacheDir = path.join(__dirname, '..', '.spotify-cache');
+      const cacheDir = path.join(__dirname, '.spotify-cache');
       fs.writeFileSync(
         cacheDir,
         JSON.stringify({
@@ -177,16 +177,14 @@ if (redirectUri.startsWith('https')) {
     
     try {
       // selfsigned パッケージで証明書を生成
-      const pems = selfsigned.generate([{ name: 'commonName', value: 'localhost' }], {
+      const pems = selfsigned.generate([{ name: 'commonName', value: '127.0.0.1' }], {
         days: 365,
         algorithm: 'sha256',
         keySize: 4096,
         extensions: [{
           name: 'subjectAltName',
           altNames: [
-            { type: 2, value: 'localhost' },
-            { type: 2, value: '127.0.0.1' },
-            { type: 7, ip: '127.0.0.1' }
+            { type: 2, value: '127.0.0.1' }
           ]
         }]
       });
@@ -210,7 +208,7 @@ if (redirectUri.startsWith('https')) {
     const options = { key: privateKey, cert: certificate };
     
     server = https.createServer(options, requestHandler);
-    console.log('🌐 HTTPS リダイレクトサーバーが https://localhost:8888 で待機しています...');
+    console.log('🌐 HTTPS リダイレクトサーバーが https://127.0.0.1:8888 で待機しています...');
   } else {
     console.error('❌ HTTPS 証明書が見つかりません。');
     process.exit(1);
@@ -218,10 +216,10 @@ if (redirectUri.startsWith('https')) {
 } else {
   // HTTP の場合
   server = http.createServer(requestHandler);
-  console.log('🌐 リダイレクトサーバーが http://localhost:8888 で待機しています...');
+  console.log('🌐 リダイレクトサーバーが http://127.0.0.1:8888 で待機しています...');
 }
 
-server.listen(8888);
+server.listen(8888, '127.0.0.1');
 
 // タイムアウト設定（10分）
 setTimeout(() => {

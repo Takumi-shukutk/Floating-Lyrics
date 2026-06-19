@@ -10,7 +10,7 @@ class SpotifyService {
     this.tokenExpiry = null;
     this.clientId = process.env.SPOTIFY_CLIENT_ID;
     this.clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-    this.redirectUri = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:8888/callback';
+    this.redirectUri = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:8888/callback';
     this.cachePath = path.join(__dirname, '../../.spotify-cache');
     this.baseURL = 'https://api.spotify.com/v1';
   }
