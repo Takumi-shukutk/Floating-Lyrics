@@ -118,11 +118,10 @@ new FloatingLyricsBridge();
 2. **ネット接続確認** - 歌詞API（lyrics.ovh）に接続してください
 3. **コンソールを確認** - 開発者ツール（F12）でエラーメッセージを確認
 
-### 認証エラー
+### Spicetify / メタデータ関連
 
-1. **Client ID/Secret を確認** - `.env` ファイルをチェック
-2. **Redirect URI を確認** - Spotify Developer ダッシュボードの設定と一致しているか
-3. **キャッシュを削除** - `.spotify-cache` ファイルを削除して再試行
+1. Spicetify 拡張が正しく動作しているか確認してください（`http://127.0.0.1:8889/track` に POST を送信）
+2. Electron のターミナルと Renderer のコンソールでエラーログを確認してください
 
 ### ウィンドウが見えない
 
