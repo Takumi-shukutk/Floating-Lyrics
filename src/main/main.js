@@ -29,6 +29,13 @@ const createWindow = () => {
     skipTaskbar: config.window.skipTaskbar,
   });
 
+  if (config.window.alwaysOnTop) {
+    mainWindow.setAlwaysOnTop(true, 'screen-saver');
+    if (typeof mainWindow.setVisibleOnAllWorkspaces === 'function') {
+      mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    }
+  }
+
   const isDev = process.argv.includes('--dev');
   if (isDev) {
     mainWindow.loadURL('http://localhost:3000');
