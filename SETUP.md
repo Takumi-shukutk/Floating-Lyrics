@@ -57,8 +57,8 @@ Spicetify から再生中の曲情報を Electron に送信するための手順
 Windows:
 
 ```powershell
-mkdir $env:USERPROFILE\.spicetify\Extensions -Force
-copy .\spicetify-extensions\floating-lyrics-bridge.js $env:USERPROFILE\.spicetify\Extensions\floating-lyrics-bridge.js
+cp ".\spicetify-extensions\floating-lyrics-bridge.js" "$(spicetify config-dir)\Extensions\"
+spicetify config extensions floating-lyrics-bridge.js
 spicetify apply
 ```
 

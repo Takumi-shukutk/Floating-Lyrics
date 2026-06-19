@@ -22,7 +22,7 @@
 ### 1. リポジトリのクローン
 
 ```bash
-git clone https://github.com/yourusername/Floating-Lyrics.git
+git clone https://github.com/Takumi-shukutk/Floating-Lyrics.git
 cd Floating-Lyrics
 ```
 
@@ -45,50 +45,6 @@ npm start
 1. Spicetify の拡張スクリプトを用意します。
 2. Spicetify から再生中の曲情報を `http://127.0.0.1:8889/track` に POST 送信します。
 3. Electron アプリが受信した曲情報をもとに歌詞を検索・表示します。
-
-## Spicetify 拡張例
-
-```js
-class FloatingLyricsBridge {
-  constructor() {
-    this.interval = null;
-  }
-
-  onEnabled() {
-    this.interval = setInterval(() => this.sendTrackInfo(), 500);
-  }
-
-  onDisabled() {
-    clearInterval(this.interval);
-  }
-
-  sendTrackInfo() {
-    const track = Spicetify.Player.data.track;
-    if (!track) return;
-
-    const payload = {
-      name: track.name,
-      artist: track.artist?.map(a => a.name).join(', ') || '',
-      progress: Spicetify.Player.getProgress() || 0,
-      duration: track.duration || 0,
-      isPlaying: Spicetify.Player.isPlaying(),
-      id: track.uri || null,
-    };
-
-    fetch('http://127.0.0.1:8889/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }).catch(() => {
-      // Electron アプリが起動していないときは無視
-    });
-  }
-}
-
-new FloatingLyricsBridge();
-```
-
- ⚠️ これにより、Spotify Premium は不要になります。
 
 ## 5. 使い方
 
