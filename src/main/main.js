@@ -48,8 +48,22 @@ const initializeServices = async () => {
 
   const isAuthenticated = await spotifyService.authenticate();
   if (!isAuthenticated) {
-    console.error('Spotify認証に失敗しました');
+    console.error('❌ Spotify認証に失敗しました');
     return false;
+  }
+
+  // デバイス情報を確認
+  console.log('\n🔍 Spotify デバイスを確認中...');
+  const devices = await spotifyService.getAvailableDevices();
+  if (devices.length === 0) {
+    console.warn('⚠️ 利用可能なデバイスが見つかりません。Spotifyでアクティブなデバイスを起動してください。');
+  } else {
+    const activeDevice = devices.find(d => d.is_active);
+    if (activeDevice) {
+      console.log(`✅ アクティブなデバイス: ${activeDevice.name}`);
+    } else {
+      console.warn('⚠️ アクティブなデバイスがありません。Spotifyで曲を再生してください。');
+    }
   }
 
   return true;

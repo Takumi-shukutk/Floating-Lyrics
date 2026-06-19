@@ -151,23 +151,45 @@ class SpotifyService {
     } catch (error) {
       console.error('❌ 現在の曲取得エラー:');
       console.error('   ステータスコード:', error.response?.status);
-      console.error('   エラーメッセージ:', error.response?.data?.error?.message || error.message);
-      console.error('   Spotify エラー詳細:', error.response?.data);
+      console.error('   Spotify APIレスポンス全体:', JSON.stringify(error.response?.data, null, 2));
       console.error('   リクエスト URL:', error.config?.url);
-      console.error('   ヘッダー:', {
-        Authorization: error.config?.headers?.Authorization ? '(トークン設定済み)' : '(トークンなし)'
-      });
+      console.error('   アクセストークン (最初の10文字):', this.accessToken?.substring(0, 10) + '...');
       
       // 403 エラーの追加情報
       if (error.response?.status === 403) {
-        console.error('\n📌 403 エラーについて:');
-        console.error('   • Spotify で曲を再生していますか？');
-        console.error('   • Spotify のアクティブなデバイスがありますか？');
-        console.error('   • アプリのスコープが正しいですか？');
-        console.error('   詳細: https://developer.spotify.com/documentation/web-api/reference/get-the-users-currently-playing-track');
+        console.error('\n📌 403 エラー - 以下を確認してください:');
+        console.error('   1. Spotify で曲を再生していますか？');
+        console.error('   2. Spotify のアクティブなデバイスがありますか？');
+        console.error('   3. アプリの権限は正しいですか？');
+        console.error('   4. トークンが有効期限切れていないですか？');
       }
       
       return null;
+    }
+  }
+
+  /**
+   * アクティブなデバイス一覧を取得
+   */
+  async getAvailableDevices() {
+    try {
+      if (!this.accessToken) return [];
+
+      const response = await axios.get(`${this.baseURL}/me/player/devices`, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      });
+
+      console.log('📱 利用可能なデバイス:');
+      response.data.devices.forEach((device, index) => {
+        console.log(`   ${index + 1}. ${device.name} (${device.type}) - アクティブ: ${device.is_active}`);
+      });
+
+      return response.data.devices;
+    } catch (error) {
+      console.error('❌ デバイス取得エラー:', error.message);
+      return [];
     }
   }
 }
