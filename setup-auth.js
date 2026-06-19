@@ -12,6 +12,7 @@ const querystring = require('querystring');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const selfsigned = require('selfsigned');
 require('dotenv').config();
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
@@ -166,30 +167,39 @@ const requestHandler = async (req, res) => {
 // HTTPS または HTTP サーバーを起動
 if (redirectUri.startsWith('https')) {
   // HTTPS の場合は自己署名証明書を使用
-  const crypto = require('crypto');
-  
-  // 簡易的な自己署名証明書を生成（テスト用）
-  const { exec } = require('child_process');
   const certDir = path.join(__dirname, '.certs');
-  
-  // 証明書が存在しなければ生成
-  if (!fs.existsSync(certDir)) {
-    fs.mkdirSync(certDir, { recursive: true });
-  }
-  
   const keyPath = path.join(certDir, 'key.pem');
   const certPath = path.join(certDir, 'cert.pem');
   
+  // 証明書が存在しなければ生成
   if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
     console.log('🔐 HTTPS 用の自己署名証明書を生成しています...\n');
-    const cmd = `openssl req -x509 -newkey rsa:2048 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "/CN=localhost"`;
     
     try {
-      // 同期実行
-      require('child_process').execSync(cmd);
+      // selfsigned パッケージで証明書を生成
+      const pems = selfsigned.generate([{ name: 'commonName', value: 'localhost' }], {
+        days: 365,
+        algorithm: 'sha256',
+        extensions: [{
+          name: 'subjectAltName',
+          altNames: [
+            { type: 2, value: 'localhost' },
+            { type: 2, value: '127.0.0.1' },
+            { type: 7, ip: '127.0.0.1' }
+          ]
+        }]
+      });
+      
+      if (!fs.existsSync(certDir)) {
+        fs.mkdirSync(certDir, { recursive: true });
+      }
+      
+      fs.writeFileSync(keyPath, pems.private);
+      fs.writeFileSync(certPath, pems.cert);
       console.log('✅ 証明書を生成しました。\n');
     } catch (e) {
-      console.warn('⚠️ 証明書の自動生成に失敗しました。手動で生成するか、HTTP に戻してください。\n');
+      console.error('❌ 証明書の生成に失敗しました:', e.message);
+      process.exit(1);
     }
   }
   
@@ -201,7 +211,7 @@ if (redirectUri.startsWith('https')) {
     server = https.createServer(options, requestHandler);
     console.log('🌐 HTTPS リダイレクトサーバーが https://localhost:8888 で待機しています...');
   } else {
-    console.error('❌ HTTPS 証明書が見つかりません。HTTP に変更してください。');
+    console.error('❌ HTTPS 証明書が見つかりません。');
     process.exit(1);
   }
 } else {
