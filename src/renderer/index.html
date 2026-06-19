@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Floating Lyrics</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div id="app" class="container">
+    <div id="title-bar" class="title-bar">
+      <span id="track-title" class="track-title">Spotify を待機中...</span>
+      <div class="controls">
+        <button id="pin-btn" class="btn pin-btn" title="最前列固定">📌</button>
+        <button id="min-btn" class="btn minimize-btn" title="最小化">➖</button>
+        <button id="close-btn" class="btn close-btn" title="閉じる">✕</button>
+      </div>
+    </div>
+    
+    <div id="lyrics-container" class="lyrics-container">
+      <div id="lyrics-content" class="lyrics-content">
+        <div class="lyrics-line placeholder">Spotify を起動して音楽を再生してください</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+</html>
