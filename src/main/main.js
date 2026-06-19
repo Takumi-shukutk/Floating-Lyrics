@@ -73,6 +73,7 @@ ipcMain.handle('get-current-track-lyrics', async () => {
       return null;
     }
 
+    console.log('Main process current track:', track);
     const lyrics = await lyricsService.getLyrics(track.name, track.artist);
 
     return {
