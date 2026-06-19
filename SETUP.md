@@ -67,11 +67,7 @@ spicetify apply
 
 Linux / macOS:
 
-```bash
-mkdir -p ~/.config/spicetify/Extensions
-cp spicetify-extensions/floating-lyrics-bridge.js ~/.config/spicetify/Extensions/floating-lyrics-bridge.js
-spicetify apply
-```
+Sorry IDK.
 
 ### 4.2 Spicetify に拡張を登録
 
