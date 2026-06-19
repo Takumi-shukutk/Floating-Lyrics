@@ -14,8 +14,8 @@
 ## 必要なもの
 
 - **Node.js** 14.0 以上
-- **Spotify Premium** アカウント
-- **Spotify Developer** アプリケーション（API認証用）
+- **Spicetify** を導入した Spotify 環境
+- **Spicetify 拡張をインストールできる環境**
 
 ## セットアップ手順
 
@@ -32,52 +32,65 @@ cd Floating-Lyrics
 npm install
 ```
 
-### 3. Spotify Developer アプリケーション作成
-
-#### 3.1 Spotify Developer アカウント作成
-1. [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) にアクセス
-2. Spotifyアカウントでログイン（なければ作成）
-3. 利用規約に同意して「CREATE AN APP」をクリック
-
-#### 3.2 アプリケーション情報の取得
-1. アプリ名を入力（例: "Floating Lyrics"）
-2. 利用規約に同意してアプリを作成
-3. アプリの詳細ページで以下を確認：
-   - **Client ID** 📋
-   - **Client Secret** 🔐（表示するには「Show Client Secret」をクリック）
-
-#### 3.3 Redirect URIの設定
-1. アプリ設定ページの「Edit Settings」をクリック
-2. **Redirect URIs** セクションで `http://127.0.0.1:8888/callback` を追加
-3. **Save** をクリック
-
-### 4. 環境変数の設定
-
-`.env.example` をコピーして `.env` を作成：
-
-```bash
-cp .env.example .env
-```
-
-`.env` ファイルを編集して、Spotify情報を入力：
-
-```env
-SPOTIFY_CLIENT_ID=your_actual_client_id_here
-SPOTIFY_CLIENT_SECRET=your_actual_client_secret_here
-SPOTIFY_REDIRECT_URI=http://127.0.0.1:8888/callback
-```
-
-⚠️ **重要**: `.env` ファイルは `.gitignore` に含まれています。**絶対に git にコミットしないでください。**
-
-### 5. アプリケーションの起動
+### 3. アプリケーションの起動
 
 ```bash
 npm start
 ```
 
-初回起動時は、Spotify認証が必要です。ブラウザが自動的に開き、Spotifyでのログインと権限許可を求められます。
+アプリを起動すると、ローカルのメタデータ受信サーバーが `http://127.0.0.1:8889` で待機します。
 
-## 使い方
+### 4. Spicetify 拡張をセットアップ
+
+1. Spicetify の拡張スクリプトを用意します。
+2. Spicetify から再生中の曲情報を `http://127.0.0.1:8889/track` に POST 送信します。
+3. Electron アプリが受信した曲情報をもとに歌詞を検索・表示します。
+
+## Spicetify 拡張例
+
+```js
+class FloatingLyricsBridge {
+  constructor() {
+    this.interval = null;
+  }
+
+  onEnabled() {
+    this.interval = setInterval(() => this.sendTrackInfo(), 500);
+  }
+
+  onDisabled() {
+    clearInterval(this.interval);
+  }
+
+  sendTrackInfo() {
+    const track = Spicetify.Player.data.track;
+    if (!track) return;
+
+    const payload = {
+      name: track.name,
+      artist: track.artist?.map(a => a.name).join(', ') || '',
+      progress: Spicetify.Player.getProgress() || 0,
+      duration: track.duration || 0,
+      isPlaying: Spicetify.Player.isPlaying(),
+      id: track.uri || null,
+    };
+
+    fetch('http://127.0.0.1:8889/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {
+      // Electron アプリが起動していないときは無視
+    });
+  }
+}
+
+new FloatingLyricsBridge();
+```
+
+⚠️ この方式では Spotify Premium は不要です。
+
+## 5. 使い方
 
 ### ウィンドウ操作
 

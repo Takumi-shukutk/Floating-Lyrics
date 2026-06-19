@@ -1,12 +1,13 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const SpotifyService = require('../services/spotify');
+const TrackProvider = require('../services/trackProvider');
+const MetadataServer = require('../services/metadataServer');
 const LyricsService = require('../services/lyrics');
 const config = require('../utils/config');
-require('dotenv').config();
 
 let mainWindow;
-let spotifyService;
+let trackProvider;
+let metadataServer;
 let lyricsService;
 let updateInterval;
 
@@ -41,42 +42,26 @@ const createWindow = () => {
   });
 };
 
-// Spotify と Lyrics サービスの初期化
+// TrackProvider と Metadata Server の初期化
 const initializeServices = async () => {
-  spotifyService = new SpotifyService();
+  trackProvider = new TrackProvider();
+  metadataServer = new MetadataServer(trackProvider, 8889);
   lyricsService = new LyricsService();
 
-  const isAuthenticated = await spotifyService.authenticate();
-  if (!isAuthenticated) {
-    console.error('❌ Spotify認証に失敗しました');
-    return false;
-  }
+  metadataServer.start();
 
-  // デバイス情報を確認
-  console.log('\n🔍 Spotify デバイスを確認中...');
-  const devices = await spotifyService.getAvailableDevices();
-  if (devices.length === 0) {
-    console.warn('⚠️ 利用可能なデバイスが見つかりません。Spotifyでアクティブなデバイスを起動してください。');
-  } else {
-    const activeDevice = devices.find(d => d.is_active);
-    if (activeDevice) {
-      console.log(`✅ アクティブなデバイス: ${activeDevice.name}`);
-    } else {
-      console.warn('⚠️ アクティブなデバイスがありません。Spotifyで曲を再生してください。');
-    }
-  }
-
+  console.log('\n🔌 Spicetify からの再生情報を待機しています...');
   return true;
 };
 
 // IPC: 現在の曲情報と歌詞を取得
 ipcMain.handle('get-current-track-lyrics', async () => {
   try {
-    if (!spotifyService || !lyricsService) {
+    if (!trackProvider || !lyricsService) {
       return null;
     }
 
-    const track = await spotifyService.getCurrentTrack();
+    const track = trackProvider.getCurrentTrack();
     if (!track) {
       return null;
     }

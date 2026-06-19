@@ -7,7 +7,6 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "setup-auth": "node setup-auth.js",
     "build": "electron-builder",
     "build-win": "electron-builder --win"
   },
@@ -20,9 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.6.0",
-    "dotenv": "^16.3.1",
-    "selfsigned": "^2.1.1"
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "electron": "^27.0.0",
