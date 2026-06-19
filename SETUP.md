@@ -20,7 +20,8 @@
   - [Git for Windows](https://git-scm.com/download/win) からダウンロード
 
 - **Spotify アカウント**
-  - [spotify.com](https://www.spotify.com) で作成（フリープランOK）
+  - [spotify.com](https://www.spotify.com) で作成
+  - **Spotify Premium アカウントが必要です**
 
 ## ステップ 2: Floating Lyrics をセットアップ
 

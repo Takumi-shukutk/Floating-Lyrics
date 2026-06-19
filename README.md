@@ -14,7 +14,7 @@
 ## 必要なもの
 
 - **Node.js** 14.0 以上
-- **Spotify** のアカウント（フリープランOK）
+- **Spotify Premium** アカウント
 - **Spotify Developer** アプリケーション（API認証用）
 
 ## セットアップ手順

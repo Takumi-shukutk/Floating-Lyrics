@@ -162,6 +162,12 @@ class SpotifyService {
         console.error('   2. Spotify のアクティブなデバイスがありますか？');
         console.error('   3. アプリの権限は正しいですか？');
         console.error('   4. トークンが有効期限切れていないですか？');
+
+        const spotifyError = error.response?.data?.error?.message || '';
+        if (spotifyError.includes('Active premium subscription required')) {
+          console.error('   ✅ このエラーは Spotify Premium が必要であることを示しています。');
+          console.error('      Premium アカウントで Spotify にログインし、再度実行してください。');
+        }
       }
       
       return null;

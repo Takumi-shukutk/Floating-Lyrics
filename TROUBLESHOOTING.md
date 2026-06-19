@@ -10,8 +10,14 @@
 
 #### 原因
 - Spotify が起動していない、または音楽を再生していない
+- Spotify アカウントが Premium ではない
 - 歌詞 API に接続できない
 - 曲の歌詞がデータベースにない
+
+#### 追記事項
+- このアプリは `GET /me/player/currently-playing` を利用します。
+- この Spotify API エンドポイントは、**Spotify Premium** アカウントが必要です。
+- Premium でない場合、現在再生中の曲情報を取得できず 403 エラーになります。
 
 #### 解決策
 
